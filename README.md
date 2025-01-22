@@ -1,25 +1,40 @@
-# banco-base
-Ejercicio Practico de ABC de pagos con intregacion con kafka
+# Banco-Base 🏦
+Ejercicio práctico de ABC de pagos con integración a **Kafka** utilizando **Redpanda**.
 
+## Pasos para la ejecución 🚀
 
-Pasos Para ejecucion:
+### 1️⃣ Iniciar el contenedor de Redpanda:
+```bash
+docker run -d --name redpanda vectorized/redpanda:v22.2.6
+```
+### 2️⃣ Levantar los servicios con Docker Compose:
+En la raíz del proyecto, ejecuta:
+```
+docker compose up -d
+```
+Este comando iniciará los servicios:
+* Generación de la base de datos.
+* Aplicación Java.
+* Kafka.
 
-En raiz de proyecto :
+### 3️⃣ Documentación de servicios:
+Para consultar la documentación de los servicios, se integró Swagger (reemplazando las colecciones de Postman).
+Accede en tu navegador a:
+👉 http://localhost:9750/base/services/swagger-ui.html#/
 
-1.- Ejecutar : docker.vectorized.io/vectorized/redpanda:v22.2.6
-2.- Ejecutar :  docker compose up -d
-    este comando ejecutara los servicios de generación de base de datos, app java y Kafka
+### 4️⃣ Ver los logs de los servicios:
+Para monitorear los logs, utiliza:
+```
+docker logs -f base-app-1
+```
+Esto incluye los logs de consumer y producer al realizar actualizaciones de estado.
 
-3.- para ver la documentación de los servicios se integro la herramienta swagger (en lugar de los colecctions de postman) 
-    para ver la documentación de los servicios la url es :  http://localhost:9750/base/services/swagger-ui.html#/
+5️⃣ Scripts SQL:
+En la raíz del proyecto encontrarás el **_archivo init.sql_**, que contiene los scripts necesarios en caso de que desees ejecutar la base de datos localmente.
 
-4.- para ver los logs de los servicios ejecutar: docker logs -f {base-app-1} logs de consumer y producer al ejecutar una actualizcion de estatus.
-
-5.- dento de la raíz del proyecto se encuentra el archivo init.sql, por si se quiere ejecutar estos scripts en una base local.
-
-6.- Definicion de Proucer y consumer:
-
-
+## Definición de Producer y Consumer 📡
+### Configuración Kafka
+```
 @Configuration
 public class KafkaStringConfig {
 
@@ -39,27 +54,24 @@ public class KafkaStringConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 }
-
-
-
+```
+### Consumer
+```
 @Component
 @Slf4j
 public class KafkaStringConsumer {
 
-
-    @KafkaListener(topics = "TOPIC-DEMO" , groupId = "group_id")
+    @KafkaListener(topics = "TOPIC-DEMO", groupId = "group_id")
     public void consume(String message) {
         log.info("Consuming Message {}", message);
     }
-
 }
-
-
-
+```
+### Producer
+```
 @Component
 @Slf4j
 public class KafkaStringProducer {
-
 
     private final KafkaTemplate<String, PagosDTO> kafkaTemplate;
 
@@ -71,5 +83,7 @@ public class KafkaStringProducer {
         log.info("Producing message {}", message);
         this.kafkaTemplate.send("TOPIC-DEMO", key, message);
     }
-
 }
+```
+
+
